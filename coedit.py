@@ -1,8 +1,10 @@
 import argparse
-import os
+import logging
 import tkinter as tk
 from tkinter import filedialog
 from transformers import AutoTokenizer, T5ForConditionalGeneration
+
+logging.basicConfig(level=logging.INFO)
 
 def edit_text(prompt, text):
     tokenizer = AutoTokenizer.from_pretrained("grammarly/coedit-large")
@@ -24,6 +26,34 @@ def get_prompt_from_dialog():
     prompt = tk.simpledialog.askstring("Input", "Enter the prompt:")
     return prompt
 
+def load_text_from_file(file_path):
+    with open(file_path, "r") as file:
+        return file.read()
+
+def save_text_to_file(text, output_path):
+    with open(output_path, "w") as file:
+        file.write(text)
+
+def process_input(args):
+    if args.gui:
+        if args.input_text:
+            logging.error("--input_text and --gui cannot be used together.")
+            return None, None
+        file_path = get_file_path_from_dialog()
+        prompt = get_prompt_from_dialog()
+    else:
+        if not args.input_text and (not args.input_file or not args.prompt):
+            raise ValueError("--input_text or (--input_file and --prompt) arguments are required if --gui is not specified.")
+        if args.input_text:
+            text = args.input_text
+            prompt = args.prompt
+        else:
+            file_path = args.input_file
+            text = load_text_from_file(file_path)
+            prompt = args.prompt
+
+    return text, prompt
+
 def main():
     parser = argparse.ArgumentParser(description="Edit text using a Coedit transformer.")
     parser.add_argument("--gui", action="store_true", help="Use file dialog and prompt dialog.")
@@ -34,37 +64,22 @@ def main():
     parser.add_argument("--output_file", help="Path to save the edited text.")
     args = parser.parse_args()
 
-    if args.gui:
-        if args.input_text:
-            print("--input_text and --gui cannot be used together.")
-            return
-        file_path = get_file_path_from_dialog()
-        prompt = get_prompt_from_dialog()
-    else:
-        if not args.input_text and (not args.input_file or not args.prompt):
-            parser.error("--input_text or (--input_file and --prompt) arguments are required if --gui is not specified.")
-        if args.input_text:
-            text = args.input_text
-            prompt = args.prompt
-        else:
-            file_path = args.input_file
-            prompt = args.prompt
-
-    if not args.input_text:
-        with open(file_path, "r") as file:
-            text = file.read()
+    try:
+        text, prompt = process_input(args)
+    except ValueError as e:
+        logging.error(e)
+        return
 
     edited_text = edit_text(prompt, text)
 
     if args.stdout:
-        print("Edited text:\n", edited_text)
+        logging.info("Edited text:\n%s", edited_text)
     else:
         if not args.output_file:
-            parser.error("--output_file argument is required if --stdout is not specified.")
-        output_path = args.output_file
-        with open(output_path, "w") as file:
-            file.write(edited_text)
-        print("Edited text saved to:", output_path)
+            logging.error("--output_file argument is required if --stdout is not specified.")
+            return
+        save_text_to_file(edited_text, args.output_file)
+        logging.info("Edited text saved to: %s", args.output_file)
 
 if __name__ == "__main__":
     main()
