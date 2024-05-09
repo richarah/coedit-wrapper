@@ -35,20 +35,28 @@ def save_text_to_file(text, output_path):
         file.write(text)
 
 def process_input(args):
+    text, prompt = None, None
     if args.gui:
         if args.input_text:
             logging.error("--input_text and --gui cannot be used together.")
             return None, None
         file_path = get_file_path_from_dialog()
+        if not file_path:
+            logging.error("No file selected.")
+            return None, None
         prompt = get_prompt_from_dialog()
     else:
         if not args.input_text and (not args.input_file or not args.prompt):
-            raise ValueError("--input_text or (--input_file and --prompt) arguments are required if --gui is not specified.")
+            logging.error("--input_text or (--input_file and --prompt) arguments are required if --gui is not specified.")
+            return None, None
         if args.input_text:
             text = args.input_text
             prompt = args.prompt
         else:
             file_path = args.input_file
+            if not os.path.exists(file_path):
+                logging.error("Input file does not exist.")
+                return None, None
             text = load_text_from_file(file_path)
             prompt = args.prompt
 
