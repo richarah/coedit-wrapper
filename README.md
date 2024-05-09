@@ -2,9 +2,7 @@
 
 #### What is this?
 
-* Edit text using a Coedit transformer model, à la Grammarly.
-* Support for editing text from a file, user input, or GUI.
-* Save edited text to a file or print it to standard output.
+* A tool for editing text using a Coedit transformer model, à la Grammarly. Can be used purely in textmode, with GUI (Tk) or as a module.
 * **Please note: This is a work in progress!**
 
 Requirements
@@ -19,7 +17,7 @@ Requirements
 Usage
 -----
 
-`python coedit_text_editor.py [options]`
+`python coedit.py [options]`
 
 ### Options
 
