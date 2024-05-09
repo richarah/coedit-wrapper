@@ -32,10 +32,13 @@ Examples
 --------
 
 1. Edit text from a file and save the edited text to another file:
-   `python coeditor.py --input_file input.txt --prompt "Make the text more casual." --output_file edited.txt`
+
+`python coeditor.py --input_file input.txt --prompt "Make the text more casual." --output_file edited.txt`
 
 2. Edit text using the GUI and print the edited text to standard output:
-   `python coeditor.py --gui --stdout`
+
+`python coeditor.py --gui --stdout`
 
 3. Edit text directly and save the edited text to a file:
-   `python coeditor.py --input_text "Input text to edit." --prompt "Make the text more formal." --output_file edited.txt`
+
+`python coeditor.py --input_text "Input text to edit." --prompt "Make the text more formal." --output_file edited.txt`
